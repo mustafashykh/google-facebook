@@ -8,26 +8,12 @@
     </head>
     <body>
         <section class="main">
-            <h1 class="heading">WeathExt</h1>
+            <h1 class="heading">Google Maps Facebook Data</h1>
             <section class="formContainer">
-                <input id="city" type="text" placeholder="Search for a city" autofocus> <br>
-                <button id="showWeather" type="submit">Show Weather</button>
+                <input id="type" type="text" placeholder="Restaurants" disabled value="Restaurants" required> <br>
+                <input id="query" type="text" placeholder="Enter query" autofocus required> <br>
+                <button id="extract" type="submit">Extract Data</button>
             </section>
         </section>
-        <div id="load" style="display: none;">Loading...</div>
-        <h1 id="errorMessage" style="display: none;">Please Enter Valid City Name</h1>
-        <div id="weatherData" style="display: none;">
-            <h1>
-                <span id="weatherCity"></span>
-                <sup id="weatherCountry"></sup>
-            </h1>
-            <div id="weatherDescription"></div>
-            <div id="weatherTemperature"></div>
-        </div> 
-        <div id="temperatureBtn" style="display: none;">
-            <button id='celsiusBtn'>Celsius</button>
-            <button id='fahrenheitBtn'>Fahrenheit</button>
-            <button id='kelvinBtn'>Kelvin</button>
-        </div>
     </body>
 </html>
