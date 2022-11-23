@@ -1,20 +1,21 @@
 $(document).ready(function () {
-    
+
+
     $("#extract").click(function () {
-        $('#load').css("display", "block");
+        $('#load').css("display", "block")
 
         let type = $("#type").val().trim()
         let query = $("#query").val().trim()
         if (type && query) {
 
-            $('#errorMessage').css("display", "none");
+            $('#errorMessage').css("display", "none")
             console.log("Test")
 
             // chrome.runtime.sendMessage({ type, query })
 
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 chrome.tabs.sendMessage(tabs[0].id, { type, query })
-            });
+            })
             // $.ajax({
             //     url: 'http://api.openweathermap.org/data/2.5/weather?q=' + type + '&units=matric&appid=' + query,
             //     type: "GET",
@@ -63,5 +64,5 @@ $(document).ready(function () {
             // $('body').css('height', '250px');
             // $('#weatherData').slideUp("slow");
         }
-    });
-});
+    })
+})
