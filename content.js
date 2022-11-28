@@ -1,7 +1,6 @@
-chrome.runtime.onMessage.addListener(async ({ type, query, url }) => {
+chrome.runtime.onMessage.addListener(async ({ type, query, searchMap }) => {
+  if (!searchMap) return
 
-  // await page.goto(`https://www.google.com/maps/search/${categoryName} in ${pinCode}/`, { timeout: 30000 })
-  // window.location.replace(`https://www.google.com/maps/search/${type}%20${query.replaceAll(' ', '%20')}/`)
   const searchInput = document.getElementById('searchboxinput')
   searchInput.value = `${type} ${query}`
   searchInput.dispatchEvent(ev)
@@ -11,10 +10,10 @@ chrome.runtime.onMessage.addListener(async ({ type, query, url }) => {
   await delay(12000)
   let allRestaurants = document.querySelectorAll('div[role="article"]')
 
-
   let hasNewRestaurants = true
   const limit = 5
   while (hasNewRestaurants && restaurantsCount < limit && allRestaurants.length >= restaurantsCount) {
+    if (!allRestaurants[restaurantsCount]) break
     allRestaurants[restaurantsCount].querySelector('a').click()
     await delay(5000)
     try {
@@ -56,78 +55,62 @@ chrome.runtime.onMessage.addListener(async ({ type, query, url }) => {
     catch (e) { console.log(e) }
 
     restaurantsCount++
-    // if (restaurantsCount > allRestaurants.length - 2) {
-    //   const posX = 100
-    //   const posY = 250
-    //   await page.mouse.move(posX, posY)
-    //   await delay(1000)
-    //   await page.mouse.wheel(0, 15000)
-
-
-
-    //   await delay(10000)
-
-    //   allRestaurants = ('div[role="article"]')
-
-
-    // }
-    try {
-      // if (restaurantsCount > limit) {
-      //   document.querySelector(`div[role="feed"]`).scrollBy(0, 2000)
-      //   await delay(5000)
-
-      //   allRestaurants = document.querySelectorAll('div[role="article"]')
-      // }
-    }
-    catch (e) {
-      console.log(e)
-    }
-
 
   }
 
   console.log('Restaurants --->>>>', dataAll)
 
-  try {
-    // for (let dataIndex = 0; dataIndex < dataAll.length; dataIndex++) {
-
-
-    //   const element = dataAll[dataIndex]
-    //   await page.goto(`https://www.google.com/search?q=facebook ${element.Name} in ${pinCode}`)
-
-    //   const firstPageLink = await page.$('#search a[href*="www.facebook.com"]')
-    //   if (firstPageLink) {
-    //     await firstPageLink.click()
-    //     await delay(3000)
-    //     // Look for about page
-    //     const aboutPage = await page.$('a[href*="/about"]')
-    //     await aboutPage.click()
-    //     await delay(3000)
-
-    //     const allSpans = await page.$$('div [role="main"] span[dir="auto"] span')
-    //     const alternativeSolution = await page.$$eval('div [role="main"] span[dir="auto"]', paragraphs => paragraphs.map(p => p.innerText.trim()))
-    //     for (let spanMatchIndex = alternativeSolution.length - 1; spanMatchIndex > 0; spanMatchIndex--) {
-    //       const element = alternativeSolution[spanMatchIndex]
-    //       //const contentText = await page.innerText('div [role="main"] span[dir="auto"] span');
-    //       const hasPhoneNumber = /^(\+\d{1,9}\s)?\(?\d{3,4}\)?[\s.-]\d{3}[\s.-]\d{4}$/.exec(element)
-    //       if (hasPhoneNumber) {
-    //         dataAll[dataIndex].FBPhone = hasPhoneNumber[0]
-    //         break
-    //       }
-
-    //     }
-
-    //   }
-
-    // }
-  }
-  catch { }
-
-  // var xls = json2xls(dataAll)
-
-  // fs.writeFileSync('FileName.xlsx', xls, 'binary')
+  await chrome.storage?.sync.set({ restaurants: [...dataAll.map] });
 
 })
+
+
+chrome.runtime.onMessage.addListener(async ({ searchGoogle }) => {
+  if (searchGoogle) {
+    const { restaurants } = await chrome.storage.sync.get(["restaurants"])
+    console.log("RESTAURANTS in storage -- ", restaurants)
+    if (!restaurants.length) return
+
+    const allLinks = []
+    try {
+      for (let dataIndex = 0; dataIndex < restaurants.length; dataIndex++) {
+        const element = restaurants[dataIndex]
+        let queryHtml = await fetch(`https://www.google.com/search?q=facebook ${element.Name} in ${10001}`)
+        queryHtml = await queryHtml.text()
+
+        var parser = new DOMParser()
+        var htmlDoc = parser.parseFromString(queryHtml, 'text/html')
+        const a = htmlDoc.querySelector('a[href*="www.facebook.com"]')
+        const href = `${a.getAttribute('href')}about`
+        allLinks.push(href)
+        // await chrome.storage?.sync.set({ restaurants: [...restaurants.map((res, index) => ({ ...res, isFacebook: index == dataIndex ? href : false }))] })
+
+      }
+    }
+
+    catch (e) { console.log(e) }
+    if (allLinks.length) {
+      console.log("FacebookLinks -- ", allLinks)
+      await chrome.storage?.sync.set({ restaurants: [...restaurants.map((res, ind) => ({ ...res, isFacebook: allLinks[ind] }))] })
+      const storage = await chrome.storage?.sync.get(['restaurants'])
+      console.log("STORAGE -- ", storage)
+    }
+  }
+
+})
+
+chrome.runtime.onMessage.addListener(async ({ searchFacebook }) => {
+  if (searchFacebook) {
+
+    try {
+
+    }
+
+    catch { }
+  }
+
+})
+
 
 
 function delay(ms) {

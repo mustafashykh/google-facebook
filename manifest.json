@@ -19,6 +19,7 @@
         {
             "matches": [
                 "https://www.google.com/maps/*",
+                "https://www.google.com/*",
                 "https://google.com/maps/*"
             ],
             "run_at": "document_idle",
@@ -31,5 +32,8 @@
     "action": {
         "default_icon": "icon16.png",
         "default_popup": "popup.html"
-    }
+    },
+    "permissions": [
+        "storage"
+    ]
 }
